@@ -1,0 +1,56 @@
+Hospital Management System API
+------------------------------------
+
+A simple Hospital Management System built using Django and Django REST Framework. This project demonstrates real-world ForeignKey-based relational database design and REST API development.
+
+Features
+-----------
+
+1 Department Management
+2 Doctor Management (linked to Department)
+3 Patient Management
+4 Appointment Scheduling (UUID primary key)
+5 Prescription Management
+6 Soft Delete support
+7 Common audit fields (created_at, updated_at)
+
+Database Relationships
+-------------------------
+
+Department → Doctor → Appointment → Prescription
+Patient → Appointment
+
+Tech Stack
+-------------
+
+Python
+Django
+Django REST Framework
+MySQL
+Git
+
+Setup Instructions
+----------------------
+
+1) Clone Repository
+
+    git clone https://github.com/Srinivasan-P-K/Hospital-Management-System-API-.git
+    cd hospital-management-api
+
+2) Create Virtual Environment
+
+    python -m venv venv
+    venv\Scripts\activate
+
+3) Install Requirements
+
+    pip install -r requirements.txt
+
+4) Run Migrations
+
+    python manage.py makemigrations
+    python manage.py migrate
+
+5) Start Server
+
+    python manage.py runserver
