@@ -6,7 +6,8 @@ from rest_framework.response import Response
 
 from .models import Department, Doctor, Patient, Appointment, Prescription
 from .serializers import (
-    DepartmentSerializer, DoctorSerializer, PatientSerializer, AppointmentSerializer, PrescriptionSerializer
+    DepartmentSerializer, DoctorSerializer, PatientSerializer, AppointmentSerializer, PrescriptionSerializer,
+    PrescriptionListSerializer, AppointmentListSerializer, DoctorListSerializer
 )
 
 class DepartmentListView(APIView):
@@ -73,7 +74,7 @@ class DoctorListView(APIView):
     def get(self, request):
         try:
             doctor_qs = Doctor.objects.filter(is_active=True, is_deleted=False)
-            serializer = DoctorSerializer(doctor_qs, many=True)
+            serializer = DoctorListSerializer(doctor_qs, many=True)
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -95,7 +96,7 @@ class DoctorDetailView(APIView):
         try:
             queryset = Doctor.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
-                serializer = DoctorSerializer(queryset)
+                serializer = DoctorListSerializer(queryset)
                 return Response(serializer.data) 
             return Response({"error": "Doctor not found"}, status=404)
         except Exception as e:
@@ -191,7 +192,7 @@ class AppointmentListView(APIView):
     def get(self, request):
         try:
             appointment_qs = Appointment.objects.filter(is_active=True, is_deleted=False)
-            serializer = AppointmentSerializer(appointment_qs, many=True)
+            serializer = AppointmentListSerializer(appointment_qs, many=True)
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -213,7 +214,7 @@ class AppointmentDetailView(APIView):
         try:
             queryset = Appointment.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
-                serializer = AppointmentSerializer(queryset)
+                serializer = AppointmentListSerializer(queryset)
                 return Response(serializer.data) 
             return Response({"error": "Appointment not found"}, status=404)
         except Exception as e:
@@ -250,7 +251,7 @@ class PrescriptionListView(APIView):
     def get(self, request):
         try:
             prescription_qs = Prescription.objects.filter(is_active=True, is_deleted=False)
-            serializer = PrescriptionSerializer(prescription_qs, many=True)
+            serializer = PrescriptionListSerializer(prescription_qs, many=True)
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -272,7 +273,7 @@ class PrescriptionDetailView(APIView):
         try:
             queryset = Prescription.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
-                serializer = PrescriptionSerializer(queryset)
+                serializer = PrescriptionListSerializer(queryset)
                 return Response(serializer.data) 
             return Response({"error": "Prescription not found"}, status=404)
         except Exception as e:
