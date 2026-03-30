@@ -10,15 +10,22 @@ from .serializers import (
     PrescriptionListSerializer, AppointmentListSerializer, DoctorListSerializer
 )
 
+from HospitalManagementSystem.base_response import JsonResponse, JsonErrorResponse, JsonPaginateResponse, JsonCatchErrorResponse
+from HospitalManagementSystem.pagination import CustomPagination
+
 class DepartmentListView(APIView):
     
     def get(self, request):
         try:
-            department_qs = Department.objects.filter(is_active=True, is_deleted=False)
-            serializer = DepartmentSerializer(department_qs, many=True)
-            return Response(serializer.data)
+            department_qs = Department.objects.filter(is_active=True, is_deleted=False).order_by('id')
+
+            paginator = CustomPagination()
+            result_page = paginator.paginate_queryset(department_qs, request)
+
+            serializer = DepartmentSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
     def post(self, request):
         
@@ -26,10 +33,10 @@ class DepartmentListView(APIView):
             serializer = DepartmentSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+                return JsonResponse(serializer.data, status=201)
+            return JsonErrorResponse(serializer.errors, status=400)
         except Exception as e: 
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
 class DepartmentDetailView(APIView):
     
@@ -38,10 +45,10 @@ class DepartmentDetailView(APIView):
             queryset = Department.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
                 serializer = DepartmentSerializer(queryset)
-                return Response(serializer.data) 
-            return Response({"error": "Department not found"}, status=404)
+                return JsonResponse(serializer.data) 
+            return JsonErrorResponse({"error": "Department not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def put(self, request, pk):
         try:
@@ -50,11 +57,11 @@ class DepartmentDetailView(APIView):
                 serializer = DepartmentSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Department not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Department not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def patch(self, request, pk):
         try:
@@ -63,11 +70,11 @@ class DepartmentDetailView(APIView):
                 serializer = DepartmentSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Department not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Department not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class DoctorListView(APIView):
     
@@ -75,9 +82,9 @@ class DoctorListView(APIView):
         try:
             doctor_qs = Doctor.objects.filter(is_active=True, is_deleted=False)
             serializer = DoctorListSerializer(doctor_qs, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
     def post(self, request):
         
@@ -85,10 +92,10 @@ class DoctorListView(APIView):
             serializer = DoctorSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+                return JsonResponse(serializer.data, status=201)
+            return JsonErrorResponse(serializer.errors, status=400)
         except Exception as e: 
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class DoctorDetailView(APIView):
 
@@ -97,10 +104,10 @@ class DoctorDetailView(APIView):
             queryset = Doctor.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
                 serializer = DoctorListSerializer(queryset)
-                return Response(serializer.data) 
-            return Response({"error": "Doctor not found"}, status=404)
+                return JsonResponse(serializer.data) 
+            return JsonErrorResponse({"error": "Doctor not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def put(self, request, pk):
         try:
@@ -109,11 +116,11 @@ class DoctorDetailView(APIView):
                 serializer = DoctorSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
             return Response({"error": "Doctor not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def patch(self, request, pk):
         try:
@@ -122,11 +129,11 @@ class DoctorDetailView(APIView):
                 serializer = DoctorSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
             return Response({"error": "Doctor not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class PatientListView(APIView):
 
@@ -134,9 +141,9 @@ class PatientListView(APIView):
         try:
             patient_qs = Patient.objects.filter(is_active=True, is_deleted=False)
             serializer = PatientSerializer(patient_qs, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
     def post(self, request):
         
@@ -144,10 +151,10 @@ class PatientListView(APIView):
             serializer = PatientSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+                return JsonResponse(serializer.data, status=201)
+            return JsonErrorResponse(serializer.errors, status=400)
         except Exception as e: 
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class PatientDetailView(APIView):
 
@@ -156,10 +163,10 @@ class PatientDetailView(APIView):
             queryset = Patient.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
                 serializer = PatientSerializer(queryset)
-                return Response(serializer.data) 
-            return Response({"error": "Patient not found"}, status=404)
+                return JsonResponse(serializer.data) 
+            return JsonErrorResponse({"error": "Patient not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def put(self, request, pk):
         try:
@@ -168,11 +175,11 @@ class PatientDetailView(APIView):
                 serializer = PatientSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Patient not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Patient not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def patch(self, request, pk):
         try:
@@ -181,11 +188,11 @@ class PatientDetailView(APIView):
                 serializer = PatientSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Patient not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Patient not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class AppointmentListView(APIView):
 
@@ -193,9 +200,9 @@ class AppointmentListView(APIView):
         try:
             appointment_qs = Appointment.objects.filter(is_active=True, is_deleted=False)
             serializer = AppointmentListSerializer(appointment_qs, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
     def post(self, request):
         
@@ -203,10 +210,10 @@ class AppointmentListView(APIView):
             serializer = AppointmentSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+                return JsonResponse(serializer.data, status=201)
+            return JsonErrorResponse(serializer.errors, status=400)
         except Exception as e: 
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class AppointmentDetailView(APIView):
 
@@ -215,10 +222,10 @@ class AppointmentDetailView(APIView):
             queryset = Appointment.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
                 serializer = AppointmentListSerializer(queryset)
-                return Response(serializer.data) 
-            return Response({"error": "Appointment not found"}, status=404)
+                return JsonResponse(serializer.data) 
+            return JsonErrorResponse({"error": "Appointment not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def put(self, request, pk):
         try:
@@ -227,11 +234,11 @@ class AppointmentDetailView(APIView):
                 serializer = AppointmentSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Appointment not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Appointment not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def patch(self, request, pk):
         try:
@@ -240,11 +247,11 @@ class AppointmentDetailView(APIView):
                 serializer = AppointmentSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Appointment not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Appointment not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class PrescriptionListView(APIView):
 
@@ -252,9 +259,9 @@ class PrescriptionListView(APIView):
         try:
             prescription_qs = Prescription.objects.filter(is_active=True, is_deleted=False)
             serializer = PrescriptionListSerializer(prescription_qs, many=True)
-            return Response(serializer.data)
+            return JsonResponse(serializer.data)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
     
     def post(self, request):
         
@@ -262,10 +269,10 @@ class PrescriptionListView(APIView):
             serializer = PrescriptionSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+                return JsonResponse(serializer.data, status=201)
+            return JsonErrorResponse(serializer.errors, status=400)
         except Exception as e: 
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
 class PrescriptionDetailView(APIView):
 
@@ -274,10 +281,10 @@ class PrescriptionDetailView(APIView):
             queryset = Prescription.objects.filter(pk=pk, is_active=True, is_deleted=False).first()
             if queryset:
                 serializer = PrescriptionListSerializer(queryset)
-                return Response(serializer.data) 
-            return Response({"error": "Prescription not found"}, status=404)
+                return JsonResponse(serializer.data) 
+            return JsonErrorResponse({"error": "Prescription not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def put(self, request, pk):
         try:
@@ -286,11 +293,11 @@ class PrescriptionDetailView(APIView):
                 serializer = PrescriptionSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Prescription not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Prescription not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
         
     def patch(self, request, pk):
         try:
@@ -299,8 +306,8 @@ class PrescriptionDetailView(APIView):
                 serializer = PrescriptionSerializer(queryset, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=400)
-            return Response({"error": "Prescription not found"}, status=404)
+                    return JsonResponse(serializer.data)
+                return JsonErrorResponse(serializer.errors, status=400)
+            return JsonErrorResponse({"error": "Prescription not found"}, status=404)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonCatchErrorResponse({"error": str(e)}, status=500)
